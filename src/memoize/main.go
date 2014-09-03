@@ -7,11 +7,11 @@ import (
 
 type memo struct {
 	Timeout time.Time
-	Result interface{}
+	Result  interface{}
 }
 
 type MemoPool struct {
-	Pool map[string]*memo
+	Pool  map[string]*memo
 	mutex *sync.RWMutex
 }
 
@@ -39,7 +39,7 @@ func Memoize(key string, caller func() interface{}, timeout uint) interface{} {
 			mp.mutex.Lock()
 			mp.Pool[key] = &memo{
 				Timeout: time.Now().Add(duration),
-				Result: result,
+				Result:  result,
 			}
 			mp.mutex.Unlock()
 		}
