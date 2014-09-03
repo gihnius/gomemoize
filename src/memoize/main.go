@@ -32,7 +32,7 @@ func Memoize(key string, caller func() interface{}, timeout uint) interface{} {
 	memoized := mp.Pool[key]
 	mp.mutex.RUnlock()
 	// reached timeout or not memoized
-	if (memoized != nil && memoized.Timeout.Before(time.Now())) || memoized == nil {
+	if memoized == nil || memoized.Timeout.Before(time.Now()) {
 		result := caller()
 		if result != nil {
 			duration := time.Duration(timeout) * time.Second
