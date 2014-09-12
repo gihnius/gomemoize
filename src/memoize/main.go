@@ -11,15 +11,14 @@ type memo struct {
 }
 
 type MemoPool struct {
-	Pool  map[string]*memo
+	pool  map[string]*memo
 	mutex *sync.RWMutex
 }
 
 var mp *MemoPool
 
 func init() {
-	var m = map[string]*memo{}
-	mp = &MemoPool{Pool: m, mutex: new(sync.RWMutex)}
+	mp = &MemoPool{pool: map[string]*memo{}, mutex: new(sync.RWMutex)}
 }
 
 // memorize result return from caller() block, timeout in N seconds
@@ -29,7 +28,7 @@ func Memoize(key string, caller func() interface{}, timeout uint) interface{} {
 		return caller()
 	}
 	mp.mutex.RLock()
-	memoized := mp.Pool[key]
+	memoized := mp.pool[key]
 	mp.mutex.RUnlock()
 	// reached timeout or not memoized
 	if memoized == nil || memoized.Timeout.Before(time.Now()) {
@@ -37,7 +36,7 @@ func Memoize(key string, caller func() interface{}, timeout uint) interface{} {
 		if result != nil {
 			duration := time.Duration(timeout) * time.Second
 			mp.mutex.Lock()
-			mp.Pool[key] = &memo{
+			mp.pool[key] = &memo{
 				Timeout: time.Now().Add(duration),
 				Result:  result,
 			}
@@ -49,11 +48,15 @@ func Memoize(key string, caller func() interface{}, timeout uint) interface{} {
 }
 
 func UnMemoize(key string) {
-	delete(mp.Pool, key)
+	mp.mutex.Lock()
+	delete(mp.pool, key)
+	mp.mutex.Unlock()
 }
 
 func UnMemoizeAll() {
-	for key, _ := range mp.Pool {
-		delete(mp.Pool, key)
+	mp.mutex.Lock()
+	for key, _ := range mp.pool {
+		delete(mp.pool, key)
 	}
+	mp.mutex.Unlock()
 }

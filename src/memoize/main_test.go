@@ -2,12 +2,12 @@ package memoize
 
 import (
 	"fmt"
-	"time"
 	"testing"
+	"time"
 )
 
 type FakeT struct {
-	Msg string
+	Msg     string
 	Counter int
 }
 
@@ -28,9 +28,10 @@ func (t *FakeT) method_multi() (int, string) {
 }
 
 var f1_counter = 0
+
 func func1(arg1 int, arg2 string) FakeT {
 	t := FakeT{
-		Msg: "return struct",
+		Msg:     "return struct",
 		Counter: arg1,
 	}
 	f1_counter += 1
@@ -38,11 +39,11 @@ func func1(arg1 int, arg2 string) FakeT {
 }
 
 var f2_counter = 0
+
 func func2() string {
 	f2_counter += 1
 	return "normal function"
 }
-
 
 func Test_Memoize_1(t *testing.T) {
 	fmt.Println("Test function")
@@ -83,8 +84,8 @@ func Test_Memoize_2(t *testing.T) {
 		memo = "not here"
 		return memo
 	}, 60)
-	fmt.Println(s1,"<=>", s2)
-	if s2 != "normal function" && s1 != s2  && f2_counter != 2 {
+	fmt.Println(s1, "<=>", s2)
+	if s2 != "normal function" && s1 != s2 && f2_counter != 2 {
 		t.Errorf("test func2 failed!")
 	}
 
